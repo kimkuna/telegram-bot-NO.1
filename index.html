@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Shop Mini App</title>
+
+  <!-- Telegram Web App SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:        #0d0d0d;
+      --surface:   #161616;
+      --card:      #1e1e1e;
+      --border:    #2a2a2a;
+      --accent:    #c8f25d;
+      --accent-dim:#8faa3a;
+      --text:      #f0f0f0;
+      --muted:     #888;
+      --radius:    18px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding-bottom: 120px;
+      /* Telegram scroll fix */
+      overscroll-behavior: none;
+    }
+
+    /* ── Header ── */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(13,13,13,0.85);
+      backdrop-filter: blur(16px);
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 22px;
+      letter-spacing: -0.3px;
+    }
+    .header-title span { color: var(--accent); }
+
+    .cart-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 8px 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: var(--text);
+      transition: background .2s;
+    }
+    .cart-btn:active { background: var(--border); }
+    .cart-count {
+      background: var(--accent);
+      color: #000;
+      border-radius: 50px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 1px 7px;
+      min-width: 20px;
+      text-align: center;
+    }
+
+    /* ── Hero banner ── */
+    .hero {
+      margin: 20px 16px 0;
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, #1a2400 0%, #0d1800 60%, #0d0d0d 100%);
+      border: 1px solid #2d3d00;
+      padding: 28px 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      right: -20px; top: -30px;
+      width: 180px; height: 180px;
+      background: radial-gradient(circle, rgba(200,242,93,0.12) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .hero-tag {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .hero-headline {
+      font-family: 'DM Serif Display', serif;
+      font-size: 28px;
+      line-height: 1.2;
+      margin-bottom: 6px;
+    }
+    .hero-sub {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    /* ── Section label ── */
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 28px 20px 12px;
+    }
+
+    /* ── Product cards ── */
+    .product-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding: 0 16px;
+    }
+
+    .product-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 110px 1fr;
+      transition: border-color .2s;
+    }
+    .product-card:active { border-color: var(--accent-dim); }
+
+    /* Product image placeholder */
+    .product-img {
+      background: var(--surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      /* ← 在这里替换成真实 <img> */
+    }
+
+    .product-body {
+      padding: 16px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .product-badge {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--accent-dim);
+    }
+    .product-name {
+      font-family: 'DM Serif Display', serif;
+      font-size: 17px;
+      line-height: 1.25;
+    }
+    .product-desc {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .product-footer {
+      margin-top: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .product-price {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--accent);
+    }
+    .product-price small {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 400;
+      margin-left: 2px;
+    }
+
+    .add-btn {
+      background: var(--accent);
+      color: #000;
+      border: none;
+      border-radius: 50px;
+      width: 32px;
+      height: 32px;
+      font-size: 20px;
+      font-weight: 300;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform .15s, background .15s;
+      flex-shrink: 0;
+    }
+    .add-btn:active { transform: scale(0.88); }
+
+    /* qty control */
+    .qty-control {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .qty-btn {
+      background: var(--border);
+      color: var(--text);
+      border: none;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .qty-num {
+      font-size: 14px;
+      font-weight: 600;
+      min-width: 18px;
+      text-align: center;
+    }
+
+    /* ── Cart sheet ── */
+    .sheet-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 20;
+    }
+    .sheet-overlay.open { display: block; }
+
+    .sheet {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: var(--surface);
+      border-radius: 24px 24px 0 0;
+      border-top: 1px solid var(--border);
+      z-index: 21;
+      padding: 20px 20px 40px;
+      max-height: 80vh;
+      overflow-y: auto;
+      transform: translateY(100%);
+      transition: transform .3s cubic-bezier(.4,0,.2,1);
+    }
+    .sheet.open { transform: translateY(0); }
+
+    .sheet-handle {
+      width: 40px;
+      height: 4px;
+      background: var(--border);
+      border-radius: 4px;
+      margin: 0 auto 18px;
+    }
+    .sheet-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 20px;
+      margin-bottom: 18px;
+    }
+    .cart-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      gap: 10px;
+    }
+    .cart-item-name { font-size: 14px; flex: 1; }
+    .cart-item-sub { font-size: 12px; color: var(--muted); }
+    .cart-item-price { font-size: 14px; font-weight: 600; color: var(--accent); white-space: nowrap; }
+
+    .cart-empty {
+      text-align: center;
+      padding: 30px 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .cart-total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 0 0;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .cart-total-row .total-price { color: var(--accent); font-size: 20px; }
+
+    .checkout-btn {
+      margin-top: 18px;
+      width: 100%;
+      padding: 16px;
+      background: var(--accent);
+      color: #000;
+      border: none;
+      border-radius: 50px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: opacity .2s;
+    }
+    .checkout-btn:active { opacity: 0.8; }
+    .checkout-btn:disabled { opacity: 0.35; cursor: default; }
+
+    /* ── Sticky checkout bar ── */
+    .sticky-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: rgba(13,13,13,0.92);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border);
+      padding: 14px 16px 28px;
+      display: none;
+      z-index: 10;
+    }
+    .sticky-bar.visible { display: block; }
+    .sticky-bar-btn {
+      width: 100%;
+      padding: 15px;
+      background: var(--accent);
+      color: #000;
+      border: none;
+      border-radius: 50px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .sticky-bar-btn:active { opacity: 0.85; }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-10px);
+      background: var(--accent);
+      color: #000;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 20px;
+      border-radius: 50px;
+      opacity: 0;
+      transition: opacity .2s, transform .2s;
+      pointer-events: none;
+      z-index: 30;
+      white-space: nowrap;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ── -->
+<header class="header">
+  <div class="header-title">Mini<span>Shop</span></div>
+  <button class="cart-btn" onclick="openCart()">
+    🛒 购物车
+    <span class="cart-count" id="cartCount">0</span>
+  </button>
+</header>
+
+<!-- ── Hero ── -->
+<div class="hero">
+  <div class="hero-tag">🔥 限时优惠</div>
+  <div class="hero-headline">精选好物<br>直达你手</div>
+  <div class="hero-sub">下单即发 · 品质保证</div>
+</div>
+
+<!-- ── Products ── -->
+<div class="section-label">精选商品</div>
+<div class="product-list" id="productList"></div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Sticky bar -->
+<div class="sticky-bar" id="stickyBar">
+  <button class="sticky-bar-btn" onclick="openCart()">
+    <span id="stickyBarLeft">查看购物车</span>
+    <span id="stickyBarRight">¥0</span>
+  </button>
+</div>
+
+<!-- Cart sheet -->
+<div class="sheet-overlay" id="overlay" onclick="closeCart()"></div>
+<div class="sheet" id="cartSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title">我的购物车</div>
+  <div id="cartItems"></div>
+  <div id="cartTotalRow" style="display:none" class="cart-total-row">
+    <span>合计</span>
+    <span class="total-price" id="cartTotalPrice">¥0</span>
+  </div>
+  <button class="checkout-btn" id="checkoutBtn" disabled onclick="checkout()">去结算</button>
+</div>
+
+<script>
+  // ============================================================
+  // ⚙️  商品数据 — 在这里修改你的商品
+  // ============================================================
+  const PRODUCTS = [
+    {
+      id: 1,
+      emoji: "🎧",          // 图片占位 emoji；替换成 img 标签即可
+      badge: "爆款",
+      name: "无线降噪耳机",
+      desc: "主动降噪 · 30h 续航 · 蓝牙 5.3",
+      price: 299,
+      unit: "元/件",
+    },
+    {
+      id: 2,
+      emoji: "⌨️",
+      badge: "新品",
+      name: "机械键盘",
+      desc: "RGB 背光 · 87键 · 茶轴静音",
+      price: 199,
+      unit: "元/件",
+    },
+    {
+      id: 3,
+      emoji: "🖱️",
+      badge: "热销",
+      name: "人体工学鼠标",
+      desc: "无线 · 6档 DPI · 充电续航60h",
+      price: 149,
+      unit: "元/件",
+    },
+  ];
+  // ============================================================
+
+  // 初始化 Telegram Web App
+  let tg = null;
+  try {
+    tg = window.Telegram.WebApp;
+    tg.expand();
+    tg.ready();
+  } catch(e) {}
+
+  // --- State ---
+  const cart = {}; // { productId: qty }
+
+  // --- Render products ---
+  function renderProducts() {
+    const list = document.getElementById('productList');
+    list.innerHTML = PRODUCTS.map(p => `
+      <div class="product-card" id="card-${p.id}">
+        <div class="product-img">${p.emoji}</div>
+        <div class="product-body">
+          <div class="product-badge">${p.badge}</div>
+          <div class="product-name">${p.name}</div>
+          <div class="product-desc">${p.desc}</div>
+          <div class="product-footer">
+            <div class="product-price">¥${p.price}<small>${p.unit}</small></div>
+            <div id="ctrl-${p.id}">
+              <button class="add-btn" onclick="addToCart(${p.id})">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function updateCtrl(id) {
+    const qty = cart[id] || 0;
+    const ctrl = document.getElementById(`ctrl-${id}`);
+    if (qty === 0) {
+      ctrl.innerHTML = `<button class="add-btn" onclick="addToCart(${id})">+</button>`;
+    } else {
+      ctrl.innerHTML = `
+        <div class="qty-control">
+          <button class="qty-btn" onclick="removeFromCart(${id})">−</button>
+          <span class="qty-num">${qty}</span>
+          <button class="qty-btn" onclick="addToCart(${id})" style="background:var(--accent);color:#000">+</button>
+        </div>`;
+    }
+  }
+
+  function addToCart(id) {
+    cart[id] = (cart[id] || 0) + 1;
+    updateCtrl(id);
+    updateSummary();
+    showToast('已加入购物车 ✓');
+  }
+
+  function removeFromCart(id) {
+    if (!cart[id]) return;
+    cart[id]--;
+    if (cart[id] === 0) delete cart[id];
+    updateCtrl(id);
+    updateSummary();
+  }
+
+  function totalItems() { return Object.values(cart).reduce((a,b)=>a+b,0); }
+  function totalPrice() {
+    return Object.entries(cart).reduce((sum,[id,qty])=>{
+      const p = PRODUCTS.find(x=>x.id==id);
+      return sum + (p ? p.price*qty : 0);
+    },0);
+  }
+
+  function updateSummary() {
+    const count = totalItems();
+    const price = totalPrice();
+    document.getElementById('cartCount').textContent = count;
+    const bar = document.getElementById('stickyBar');
+    if (count > 0) {
+      bar.classList.add('visible');
+      document.getElementById('stickyBarLeft').textContent = `查看购物车 (${count}件)`;
+      document.getElementById('stickyBarRight').textContent = `¥${price}`;
+    } else {
+      bar.classList.remove('visible');
+    }
+  }
+
+  // --- Cart sheet ---
+  function openCart() {
+    const overlay = document.getElementById('overlay');
+    const sheet   = document.getElementById('cartSheet');
+    overlay.classList.add('open');
+    sheet.classList.add('open');
+    renderCartItems();
+  }
+  function closeCart() {
+    document.getElementById('overlay').classList.remove('open');
+    document.getElementById('cartSheet').classList.remove('open');
+  }
+
+  function renderCartItems() {
+    const container = document.getElementById('cartItems');
+    const totalRow  = document.getElementById('cartTotalRow');
+    const btn       = document.getElementById('checkoutBtn');
+    const ids = Object.keys(cart).filter(id=>cart[id]>0);
+    if (ids.length === 0) {
+      container.innerHTML = '<div class="cart-empty">购物车是空的 🛒</div>';
+      totalRow.style.display = 'none';
+      btn.disabled = true;
+      return;
+    }
+    container.innerHTML = ids.map(id=>{
+      const p = PRODUCTS.find(x=>x.id==id);
+      const qty = cart[id];
+      return `<div class="cart-item">
+        <span style="font-size:24px">${p.emoji}</span>
+        <div style="flex:1">
+          <div class="cart-item-name">${p.name}</div>
+          <div class="cart-item-sub">x${qty}</div>
+        </div>
+        <span class="cart-item-price">¥${p.price*qty}</span>
+      </div>`;
+    }).join('');
+    document.getElementById('cartTotalPrice').textContent = `¥${totalPrice()}`;
+    totalRow.style.display = 'flex';
+    btn.disabled = false;
+  }
+
+  // --- Checkout ---
+  function checkout() {
+    const items = Object.entries(cart)
+      .filter(([,q])=>q>0)
+      .map(([id,q])=>{ const p=PRODUCTS.find(x=>x.id==id); return `${p.name} x${q}`; })
+      .join(', ');
+    const price = totalPrice();
+
+    // 发送数据回 Telegram Bot
+    if (tg) {
+      tg.sendData(JSON.stringify({ items: cart, total: price }));
+    } else {
+      // 开发环境下 fallback
+      alert(`订单：${items}\n合计：¥${price}\n（请在 Telegram 中打开以完成支付）`);
+    }
+  }
+
+  // --- Toast ---
+  let toastTimer;
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>t.classList.remove('show'), 1800);
+  }
+
+  // --- Init ---
+  renderProducts();
+</script>
+</body>
+</html>
