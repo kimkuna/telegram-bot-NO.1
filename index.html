@@ -536,8 +536,8 @@
     const bar = document.getElementById('stickyBar');
     if (count > 0) {
       bar.classList.add('visible');
-      document.getElementById('stickyBarLeft').textContent = `Корзина (${count}件)`;
-      document.getElementById('stickyBarRight').textContent = `¥${price}`;
+      document.getElementById('stickyBarLeft').textContent = `Корзина (${count}шт.)`;
+      document.getElementById('stickyBarRight').textContent = `₮${price}`;
     } else {
       bar.classList.remove('visible');
     }
@@ -576,10 +576,10 @@
           <div class="cart-item-name">${p.name}</div>
           <div class="cart-item-sub">x${qty}</div>
         </div>
-        <span class="cart-item-price">¥${p.price*qty}</span>
+        <span class="cart-item-price">₮${p.price*qty}</span>
       </div>`;
     }).join('');
-    document.getElementById('cartTotalPrice').textContent = `¥${totalPrice()}`;
+    document.getElementById('cartTotalPrice').textContent = `₮${totalPrice()}`;
     totalRow.style.display = 'flex';
     btn.disabled = false;
   }
