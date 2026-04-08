@@ -384,20 +384,20 @@
 <header class="header">
   <div class="header-title">Mini<span>Shop</span></div>
   <button class="cart-btn" onclick="openCart()">
-    🛒 购物车
+    🛒 Корзина
     <span class="cart-count" id="cartCount">0</span>
   </button>
 </header>
 
 <!-- ── Hero ── -->
 <div class="hero">
-  <div class="hero-tag">🔥 限时优惠</div>
-  <div class="hero-headline">精选好物<br>直达你手</div>
-  <div class="hero-sub">下单即发 · 品质保证</div>
+  <div class="hero-tag">🔥 Хорошая цена</div>
+  <div class="hero-headline">Весь мир<br>на ладони</div>
+  <div class="hero-sub">Премиум защита · 26 стран и 60+ зашифрованных узлов</div>
 </div>
 
 <!-- ── Products ── -->
-<div class="section-label">精选商品</div>
+<div class="section-label">Выбрать тариф</div>
 <div class="product-list" id="productList"></div>
 
 <!-- Toast -->
@@ -406,8 +406,8 @@
 <!-- Sticky bar -->
 <div class="sticky-bar" id="stickyBar">
   <button class="sticky-bar-btn" onclick="openCart()">
-    <span id="stickyBarLeft">查看购物车</span>
-    <span id="stickyBarRight">¥0</span>
+    <span id="stickyBarLeft">Корзина</span>
+    <span id="stickyBarRight">USD₮0</span>
   </button>
 </div>
 
@@ -415,13 +415,13 @@
 <div class="sheet-overlay" id="overlay" onclick="closeCart()"></div>
 <div class="sheet" id="cartSheet">
   <div class="sheet-handle"></div>
-  <div class="sheet-title">我的购物车</div>
+  <div class="sheet-title">Корзина</div>
   <div id="cartItems"></div>
   <div id="cartTotalRow" style="display:none" class="cart-total-row">
-    <span>合计</span>
-    <span class="total-price" id="cartTotalPrice">¥0</span>
+    <span>Итого</span>
+    <span class="total-price" id="cartTotalPrice">USD₮0</span>
   </div>
-  <button class="checkout-btn" id="checkoutBtn" disabled onclick="checkout()">去结算</button>
+  <button class="checkout-btn" id="checkoutBtn" disabled onclick="checkout()">Заказать</button>
 </div>
 
 <script>
@@ -431,30 +431,30 @@
   const PRODUCTS = [
     {
       id: 1,
-      emoji: "🎧",          // 图片占位 emoji；替换成 img 标签即可
-      badge: "爆款",
-      name: "无线降噪耳机",
-      desc: "主动降噪 · 30h 续航 · 蓝牙 5.3",
-      price: 299,
-      unit: "元/件",
+      emoji: "1️⃣",          // 图片占位 emoji；替换成 img 标签即可
+      badge: ""Комфорт"",
+      name: "300 ГБ трафика в месяц",
+      desc: "Скорость до 1000 Мбит/с · До 5 устройств одновременно · Шифрование данных, высокая стабильность",
+      price: 9.9,
+      unit: "USD₮",
     },
     {
       id: 2,
-      emoji: "⌨️",
-      badge: "新品",
-      name: "机械键盘",
-      desc: "RGB 背光 · 87键 · 茶轴静音",
-      price: 199,
-      unit: "元/件",
+      emoji: "2️⃣",
+      badge: ""Продвинутый"",
+      name: "600 ГБ трафика в месяц",
+      desc: "Скорость до 1000 Мбит/с · До 8 устройств одновременно · Шифрование данных, высокая стабильность",
+      price: 14.9,
+      unit: "USD₮",
     },
     {
       id: 3,
-      emoji: "🖱️",
-      badge: "热销",
-      name: "人体工学鼠标",
-      desc: "无线 · 6档 DPI · 充电续航60h",
-      price: 149,
-      unit: "元/件",
+      emoji: "3️⃣",
+      badge: ""Флагман"",
+      name: "1000 ГБ трафика в месяц",
+      desc: "Скорость до 1000 Мбит/с · До 10 устройств одновременно · Шифрование данных, высокая стабильность",
+      price: 19.9,
+      unit: "USD₮",
     },
   ];
   // ============================================================
@@ -510,7 +510,7 @@
     cart[id] = (cart[id] || 0) + 1;
     updateCtrl(id);
     updateSummary();
-    showToast('已加入购物车 ✓');
+    showToast('Добавлен в корзину ✓');
   }
 
   function removeFromCart(id) {
@@ -536,7 +536,7 @@
     const bar = document.getElementById('stickyBar');
     if (count > 0) {
       bar.classList.add('visible');
-      document.getElementById('stickyBarLeft').textContent = `查看购物车 (${count}件)`;
+      document.getElementById('stickyBarLeft').textContent = `Корзина (${count}件)`;
       document.getElementById('stickyBarRight').textContent = `¥${price}`;
     } else {
       bar.classList.remove('visible');
@@ -562,7 +562,7 @@
     const btn       = document.getElementById('checkoutBtn');
     const ids = Object.keys(cart).filter(id=>cart[id]>0);
     if (ids.length === 0) {
-      container.innerHTML = '<div class="cart-empty">购物车是空的 🛒</div>';
+      container.innerHTML = '<div class="cart-empty">В корзине пока пусто 🛒</div>';
       totalRow.style.display = 'none';
       btn.disabled = true;
       return;
@@ -597,7 +597,7 @@
       tg.sendData(JSON.stringify({ items: cart, total: price }));
     } else {
       // 开发环境下 fallback
-      alert(`订单：${items}\n合计：¥${price}\n（请在 Telegram 中打开以完成支付）`);
+      alert(`Заказ：${items}\nИтого：¥${price}\n（Откройте в Telegram, чтобы завершить платеж.）`);
     }
   }
 
